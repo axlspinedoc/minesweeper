@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="styles/styles.css">    
+
+<head>
+    <meta charset="UTF-8">
+    <title>Minesweeper</title>
+</head>
+
+<body>    
+    <div class="controls">                
+        <div class="inputs">
+            <label for="input-controls">            
+                Rows: <input type="number" id="rows" min='0' value='5' >
+            </label>            
+        </div>
+        <div class="inputs">
+            <label for="input-controls">            
+                Columns: <input type="number" id="columns" min='0' value='5'>
+            </label>            
+        </div>
+        <div class="inputs">
+            <label for="input-controls">            
+                Bombs: <input type="number" id="bombs" min='0' value='5'>
+            </label>            
+        </div>        
+        <div class="inputs">
+            <button type="submit" id="start">Start</button>
+        </div>
+    </div>
+    <div id="game-space">
+        <div id="canvas"></div>
+    </div>
+    
+    <!-- <script src="scripts/engine.js"></script>     -->
+    <script src="scripts/script.js"></script>
+</body>
+</html>
