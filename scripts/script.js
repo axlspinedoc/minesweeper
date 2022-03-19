@@ -4,18 +4,16 @@ const canvas = document.getElementById("canvas");
 
 start.addEventListener('click', handleStart);
 
-/** To Do's
- * - Plan winning algorithm 
+/** To Do's 
  * - Recursively open up empty cells until a bomb is adjacent 
- * - Optimize
- * 
+ * - Add function to show all bombs when losing
+ * - Optimize 
  */
 
 
 //------------------------------FUNCTIONS---------------------------------------
 
-const addBombs = function(table, qty){
-    
+const addBombs = function(table, qty){    
     let remaining = qty;
     // Make a copy of inbound table to make it iterable
     const _rows = table.length;
@@ -30,13 +28,6 @@ const addBombs = function(table, qty){
         }        
     }    
     return _grid;
-}
-
-const checkCell = function (table, x, y){
-    const cell = document.getElementById(`R${x}C${y}`);    
-    cell.className = 'columnVisited'
-    // console.assert(typeof grid[10][10] !== 'undefined', "hello");
-    
 }
 
 const countBombs = function(table, x, y){    
@@ -54,35 +45,55 @@ const countBombs = function(table, x, y){
                     sum++
                     console.log('bomb at ' + r + '|' + c);
                 }    
-            } catch (error) {
-                
-            }
-            
+            } catch (error) {}            
         }
-    }    
-    // Try copying a portion of the original table and adding the contents
-    // const subArray = [1, 2, 3];
-    // const sum = subArray.reduce((partialSum, a) => partialSum + a, 0);
-    
+    }        
     return sum;
 }
 
-const checkWin = function (table, bombs){
+const checkWin = function (table, bombs){    
     const _rows = table.length;
     const _columns = table[0].length;
     let _grid = Array(_rows).fill().map(()=>Array(_columns).fill(0));
     _grid = table;
     // const sum = _grid.reduce((partialSum, a) => partialSum + a, 0);
-    const sum = _grid.reduce(function(subArr1, subArr2){
-        return subArr1.map(function(value, index){
-            return value + subArr2[index];
-        });
-    });
-    
+    let sum = 0;
+    for (let _i = 0; _i<_rows; _i++){
+        sum += _grid[_i].reduce((a, b)=> a+b);        
+    }        
     console.log(sum);
-    if(sum == (_rows*_columns)-bombs){
+    if(sum == (_rows*_columns)-bombs*2){
         alert("you win!");
     }
+}
+
+const checkCell = function (table, x, y){    
+    try{
+        const cell = document.getElementById(`R${x}C${y}`);    
+        cell.className = 'columnVisited'        
+        
+        const _rows = table.length;
+        const _columns = table[0].length;
+        let _grid = Array(_rows).fill().map(()=>Array(_columns).fill(0));    
+        _grid = table;
+
+        let _bombs = countBombs(table, x, y);
+        cell.innerText = _bombs;
+        _grid[x][y] = 1;
+    }catch(error){
+        // The cell doesn't exist    
+    }
+    
+    
+    // if(_bombs != 0){
+    //     cell.innerText = _bombs;
+    //     _grid[x][y] = 1;    
+    // } else {
+
+    // }
+
+    
+    return _grid;
 }
 
 //-----------------------END OF FUNCTIONS---------------------------------------
@@ -98,18 +109,11 @@ function handleStart() {
     if(bombs>columns*rows) {
         alert("number of bombs cannot exceed " + (rows*columns))
         return
-    }
-        
-    // clear Canvas
-    canvas.innerHTML="";
-    // create logic array
-    let grid = Array(rows).fill().map(()=>Array(columns).fill(0));
-    // add bombs
-    
-    grid = addBombs(grid, bombs);    
-    
+    }            
+    canvas.innerHTML="";    
+    let grid = Array(rows).fill().map(()=>Array(columns).fill(0));        
+    grid = addBombs(grid, bombs);        
     console.table(grid);
-
     // draw board
     for (let r = 0; r < rows; r++){
         let div = document.createElement('div');
@@ -123,21 +127,18 @@ function handleStart() {
             divC.addEventListener('click', handleCellClick);
             
             // function definition
-            function handleCellClick() {                                                
-                
+            function handleCellClick() {                                                                
                 let r = parseInt(divC.id.substring(1));
                 let c = parseInt(divC.id.substring(3));                
                 let cellValue = grid[r][c];
                 if(cellValue == -1) {
-                    divC.className = 'bomb'
-                    alert("You lose")
-                } else if(cellValue == 0){
-                    divC.className = 'columnVisited';
-                    grid[r][c] = 1;
+                    divC.className = 'bomb';
+                    alert("You lose");
+                    // showBombs();
+                } else if(cellValue == 0){                                        
+                    grid = checkCell(grid, r, c);
                     console.table(grid);
-                    divC.innerText = countBombs(grid, r, c);
-                    checkWin(grid, bombs);
-                    //checkCell(grid, r, c);
+                    checkWin(grid, bombs);                   
                 }                
             }
         }                
