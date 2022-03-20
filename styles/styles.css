@@ -41,10 +41,20 @@ html {
     height: 50px;
     width: 50px;
     border: 1px solid black;
-    background-color: rgb(173, 250, 58);
+    background-color: rgb(136, 163, 96);
     text-align: center;
     vertical-align: middle;
     line-height: 50px; 
+}
+
+.columnAdjacent {
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    background-color: rgb(137, 197, 48);
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
 }
 
 .bomb {

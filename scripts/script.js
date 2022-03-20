@@ -5,7 +5,11 @@ const canvas = document.getElementById("canvas");
 start.addEventListener('click', handleStart);
 
 /** To Do's 
- * - Recursively open up empty cells until a bomb is adjacent 
+ * - Recursively open up empty cells until a bomb is adjacent
+ * - Notes: Follow this pattern to check if  
+ *          1 | 2 | 3
+ *          4 | x | 5
+ *          6 | 7 | 8 
  * - Add function to show all bombs when losing
  * - Optimize 
  */
@@ -18,11 +22,12 @@ const addBombs = function(table, qty){
     // Make a copy of inbound table to make it iterable
     const _rows = table.length;
     const _columns = table[0].length;
-    const _grid = Array(_rows).fill().map(()=>Array(_columns).fill(0));
+    
+    let _grid = table;
     while(remaining>0){
         const bombRow = parseInt(Math.random() * _rows);
         const bombCol = parseInt(Math.random() * _columns);            
-        if(_grid[bombRow][bombCol] == 0){
+        if(_grid[bombRow][bombCol] != -1){
             remaining--;
             _grid[bombRow][bombCol] = -1;
         }        
@@ -34,8 +39,8 @@ const countBombs = function(table, x, y){
     // Make a copy of inbound table to make it iterable
     const _rows = table.length;
     const _columns = table[0].length;
-    let _grid = Array(_rows).fill().map(()=>Array(_columns).fill(0));
-    _grid = table;
+    
+    let _grid = table;
     
     let sum = 0;
     for(let r = x-1; r <= x+1; r++){
@@ -51,48 +56,45 @@ const countBombs = function(table, x, y){
     return sum;
 }
 
-const checkWin = function (table, bombs){    
+const checkWin = function (table){    
     const _rows = table.length;
-    const _columns = table[0].length;
-    let _grid = Array(_rows).fill().map(()=>Array(_columns).fill(0));
-    _grid = table;
-    // const sum = _grid.reduce((partialSum, a) => partialSum + a, 0);
-    let sum = 0;
+    const _columns = table[0].length;    
+    let _grid = table;    
+    let unopened = 0;
     for (let _i = 0; _i<_rows; _i++){
-        sum += _grid[_i].reduce((a, b)=> a+b);        
+        unopened += _grid[_i].filter((a)=> a==='u').length;
     }        
-    console.log(sum);
-    if(sum == (_rows*_columns)-bombs*2){
+    console.log(unopened);
+    if(unopened===0){
         alert("you win!");
     }
 }
 
 const checkCell = function (table, x, y){    
     try{
-        const cell = document.getElementById(`R${x}C${y}`);    
-        cell.className = 'columnVisited'        
-        
-        const _rows = table.length;
-        const _columns = table[0].length;
-        let _grid = Array(_rows).fill().map(()=>Array(_columns).fill(0));    
-        _grid = table;
-
-        let _bombs = countBombs(table, x, y);
-        cell.innerText = _bombs;
-        _grid[x][y] = 1;
     }catch(error){
         // The cell doesn't exist    
     }
+    const cell = document.getElementById(`R${x}C${y}`);    
+    cell.className = 'columnVisited'        
     
+    const _rows = table.length;
+    const _columns = table[0].length;
     
-    // if(_bombs != 0){
-    //     cell.innerText = _bombs;
-    //     _grid[x][y] = 1;    
-    // } else {
+        
+    _grid = table;
+    let _bombs = countBombs(table, x, y);
+    cell.innerText = _bombs;
+    _grid[x][y] = _bombs;
+    
+    // Propagate
+    for(let r = x-1; r < x+1; r++){
+        for(let c = y-1; c < y+1; c++){
+            if(_grid[x][y]==='u'){
 
-    // }
-
-    
+            }
+        }
+    }    
     return _grid;
 }
 
@@ -111,9 +113,8 @@ function handleStart() {
         return
     }            
     canvas.innerHTML="";    
-    let grid = Array(rows).fill().map(()=>Array(columns).fill(0));        
+    let grid = Array(rows).fill().map(()=>Array(columns).fill('u'));            
     grid = addBombs(grid, bombs);        
-    console.table(grid);
     // draw board
     for (let r = 0; r < rows; r++){
         let div = document.createElement('div');
@@ -135,10 +136,10 @@ function handleStart() {
                     divC.className = 'bomb';
                     alert("You lose");
                     // showBombs();
-                } else if(cellValue == 0){                                        
+                } else if(cellValue == 'u'){                                        
                     grid = checkCell(grid, r, c);
                     console.table(grid);
-                    checkWin(grid, bombs);                   
+                    checkWin(grid);                   
                 }                
             }
         }                
