@@ -77,11 +77,7 @@ const checkCell = function (table, x, y){
     }
     const cell = document.getElementById(`R${x}C${y}`);    
     cell.className = 'columnVisited'        
-    
-    const _rows = table.length;
-    const _columns = table[0].length;
-    
-        
+                    
     _grid = table;
     let _bombs = countBombs(table, x, y);
     cell.innerText = _bombs;
@@ -90,9 +86,10 @@ const checkCell = function (table, x, y){
     // Propagate
     for(let r = x-1; r < x+1; r++){
         for(let c = y-1; c < y+1; c++){
-            if(_grid[x][y]==='u'){
+            
+            // if(_grid[r][c]==='u'){
 
-            }
+            // }
         }
     }    
     return _grid;
