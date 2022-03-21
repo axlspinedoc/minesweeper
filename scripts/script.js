@@ -5,12 +5,8 @@ const canvas = document.getElementById("canvas");
 start.addEventListener('click', handleStart);
 
 /** To Do's 
- * - Recursively open up empty cells until a bomb is adjacent
- * - Notes: Follow this pattern to check if  
- *          1 | 2 | 3
- *          4 | x | 5
- *          6 | 7 | 8 
  * - Add function to show all bombs when losing
+ * - Add function to detach handle click when losing/winning
  * - Optimize 
  */
 
@@ -35,20 +31,14 @@ const addBombs = function(table, qty){
     return _grid;
 }
 
-const countBombs = function(table, x, y){    
-    // Make a copy of inbound table to make it iterable
-    const _rows = table.length;
-    const _columns = table[0].length;
-    
-    let _grid = table;
-    
+const countBombs = function(table, x, y){                
+    let _grid = table;    
     let sum = 0;
     for(let r = x-1; r <= x+1; r++){
         for(let c = y-1; c <= y+1; c++){            
             try {
                 if(_grid[r][c]==-1){
-                    sum++
-                    console.log('bomb at ' + r + '|' + c);
+                    sum++                    
                 }    
             } catch (error) {}            
         }
@@ -63,35 +53,37 @@ const checkWin = function (table){
     let unopened = 0;
     for (let _i = 0; _i<_rows; _i++){
         unopened += _grid[_i].filter((a)=> a==='u').length;
-    }        
-    console.log(unopened);
+    }            
     if(unopened===0){
         alert("you win!");
     }
 }
 
-const checkCell = function (table, x, y){    
-    try{
-    }catch(error){
-        // The cell doesn't exist    
-    }
-    const cell = document.getElementById(`R${x}C${y}`);    
-    cell.className = 'columnVisited'        
-                    
-    _grid = table;
-    let _bombs = countBombs(table, x, y);
-    cell.innerText = _bombs;
-    _grid[x][y] = _bombs;
+const checkCell = function (table, x, y){            
     
-    // Propagate
-    for(let r = x-1; r < x+1; r++){
-        for(let c = y-1; c < y+1; c++){
-            
-            // if(_grid[r][c]==='u'){
+    _grid = table;    
+    if(_grid[x][y]==='u'){          // Only if cell hasn't been opened
+        
+        const cell = document.getElementById(`R${x}C${y}`);    
+        cell.className = 'columnVisited'; 
+        let _bombs = countBombs(table, x, y);
 
-            // }
-        }
-    }    
+        if(_bombs !== 0){           // Only if there are bombs near 
+            _grid[x][y] = _bombs;                    
+            cell.innerText = _bombs;
+            cell.className = 'columnAdjacentBomb';
+            
+        }else{                      // Propagate only if there are no bombs
+            _grid[x][y] = 0;            
+            for(let r = x-1; r <= x+1; r++){
+                for(let c = y-1; c <= y+1; c++){                    
+                    try{
+                        _grid = checkCell(_grid, r, c);
+                    }catch(error){}                            
+                }
+            }    
+        }        
+    }
     return _grid;
 }
 
@@ -106,12 +98,15 @@ function handleStart() {
     
     // Handle valid number of bombs
     if(bombs>columns*rows) {
-        alert("number of bombs cannot exceed " + (rows*columns))
-        return
+        alert("number of bombs cannot exceed " + (rows*columns));
+        return;
     }            
     canvas.innerHTML="";    
     let grid = Array(rows).fill().map(()=>Array(columns).fill('u'));            
-    grid = addBombs(grid, bombs);        
+    grid = addBombs(grid, bombs);
+    /**************************************************************************/
+    console.table(grid);        
+    /**************************************************************************/
     // draw board
     for (let r = 0; r < rows; r++){
         let div = document.createElement('div');
